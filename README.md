@@ -45,11 +45,13 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ## API Endpoints
 
 ### Authentication
+
 - `POST /register` - Register a new user
 - `POST /login` - Login and get access token
 - `GET /users/me` - Get current user information
 
 ### Tasks
+
 - `POST /tasks` - Create a new task
 - `GET /tasks` - Get all tasks for current user
 - `GET /tasks/{task_id}` - Get a specific task
@@ -57,6 +59,7 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 - `DELETE /tasks/{task_id}` - Delete a specific task
 
 ### Health
+
 - `GET /` - Root endpoint with API information
 - `GET /health` - Health check endpoint
 
@@ -110,6 +113,7 @@ REDIS_URL=redis://localhost:6379
 To use with a real database:
 
 1. **Install database driver** (PostgreSQL example):
+
    ```bash
    pip install psycopg2-binary
    ```
