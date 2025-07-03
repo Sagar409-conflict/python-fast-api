@@ -1,6 +1,7 @@
 # 🚀 **FastAPI Speech Emotion Recognition - Postman Testing Guide**
 
 ## 📋 **Server Status**
+
 ✅ **Server is running at: http://localhost:8000**
 ✅ **API Documentation: http://localhost:8000/docs**
 ✅ **Model loaded: ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition**
@@ -10,27 +11,30 @@
 ## 🎯 **Main API Endpoints for Postman Testing**
 
 ### 1. **📊 Get API Information** (GET Request)
+
 - **URL**: `http://localhost:8000/api/v1/speech-emotion/info`
 - **Method**: GET
 - **Description**: Get complete API information and setup instructions
 - **No authentication required**
 
-### 2. **🎤 Analyze Speech Emotion (PUBLIC)** (POST Request) 
+### 2. **🎤 Analyze Speech Emotion (PUBLIC)** (POST Request)
+
 - **URL**: `http://localhost:8000/api/v1/speech-emotion/analyze-public`
 - **Method**: POST
 - **Content-Type**: multipart/form-data
-- **Body**: 
+- **Body**:
   - Key: `audio_file` (File type)
   - Value: Select your .wav file
 - **No authentication required**
 - **Perfect for testing!**
 
 ### 3. **🔐 Analyze Speech Emotion (AUTHENTICATED)** (POST Request)
+
 - **URL**: `http://localhost:8000/api/v1/speech-emotion/analyze`
 - **Method**: POST
 - **Content-Type**: multipart/form-data
 - **Headers**: `Authorization: Bearer <your_jwt_token>`
-- **Body**: 
+- **Body**:
   - Key: `audio_file` (File type)
   - Value: Select your .wav file
 
@@ -61,6 +65,7 @@
 10. **Click Send**
 
 ### **Expected Response Format:**
+
 ```json
 {
   "predicted_emotion": "happy",
@@ -93,10 +98,12 @@
 ## 🎵 **Sample Audio Files for Testing**
 
 You have these sample files available in `d:\Python\sample_audio\`:
+
 - **Happy emotion**: Use `happy_sample_1.wav`
 - **Test with any emotion**: Multiple generated samples available
 
 ### **Create Your Own Test Audio:**
+
 1. Record a 5-10 second voice clip expressing emotion
 2. Save as .wav format
 3. Upload via Postman
@@ -108,10 +115,12 @@ You have these sample files available in `d:\Python\sample_audio\`:
 If you want to test the authenticated endpoint:
 
 ### **Step 1: Register a User**
+
 - **URL**: `http://localhost:8000/register`
 - **Method**: POST
 - **Content-Type**: application/json
 - **Body**:
+
 ```json
 {
   "username": "testuser",
@@ -121,6 +130,7 @@ If you want to test the authenticated endpoint:
 ```
 
 ### **Step 2: Login to Get Token**
+
 - **URL**: `http://localhost:8000/login`
 - **Method**: POST
 - **Content-Type**: application/x-www-form-urlencoded
@@ -129,6 +139,7 @@ If you want to test the authenticated endpoint:
   - `password`: testpass123
 
 ### **Step 3: Use Token for Authenticated Requests**
+
 - **URL**: `http://localhost:8000/api/v1/speech-emotion/analyze`
 - **Method**: POST
 - **Headers**: `Authorization: Bearer <token_from_step_2>`
@@ -209,6 +220,7 @@ Save this as a .json file and import into Postman:
 ## ✨ **Quick Test Commands**
 
 ### **PowerShell/CMD Testing:**
+
 ```bash
 # Test API info
 curl http://localhost:8000/api/v1/speech-emotion/info
@@ -220,15 +232,18 @@ curl -X POST -F "audio_file=@path/to/your/file.wav" http://localhost:8000/api/v1
 ---
 
 ## 🎯 **Supported Audio Formats**
+
 - **Format**: WAV files only
 - **Sample Rate**: 16kHz (auto-converted)
 - **Max File Size**: 50MB
 - **Duration**: 3-30 seconds recommended
 
 ## 🎭 **Supported Emotions**
+
 The model can detect these 8 emotions:
+
 - angry
-- calm  
+- calm
 - disgust
 - fearful
 - happy
@@ -243,14 +258,17 @@ The model can detect these 8 emotions:
 ### **Common Issues:**
 
 1. **"Connection refused"**
+
    - Check if server is running: `http://localhost:8000/health`
    - Restart server if needed
 
 2. **"Unsupported file format"**
+
    - Ensure file is .wav format
    - Check file is not corrupted
 
 3. **"File too large"**
+
    - Maximum file size is 50MB
    - Compress audio if needed
 
@@ -259,6 +277,7 @@ The model can detect these 8 emotions:
    - Check file was uploaded correctly
 
 ### **Server Commands:**
+
 ```bash
 # Start server
 cd "d:\Python"

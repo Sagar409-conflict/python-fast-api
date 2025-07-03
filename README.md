@@ -235,6 +235,7 @@ MIT License - feel free to use this template for your projects!
 This application includes AI-powered speech emotion recognition using the Hugging Face model `firdhokk/speech-emotion-recognition-with-openai-whisper-large-v3`.
 
 ### Features:
+
 - **Real-time emotion analysis** from WAV audio files
 - **Multiple emotion detection** with confidence scores
 - **Public and authenticated endpoints** for different use cases
@@ -242,18 +243,20 @@ This application includes AI-powered speech emotion recognition using the Huggin
 - **Model caching** for faster subsequent requests
 
 ### Supported Audio Formats:
+
 - WAV files (recommended: 16kHz sample rate)
 - Mono or stereo audio
 - Duration: up to 30 seconds (optimal: 2-10 seconds)
 
 ### Response Format:
+
 ```json
 {
   "predicted_emotion": "happy",
   "confidence": 0.85,
   "all_emotions": {
     "happy": 0.85,
-    "neutral": 0.10,
+    "neutral": 0.1,
     "sad": 0.03,
     "angry": 0.02
   },
@@ -263,11 +266,13 @@ This application includes AI-powered speech emotion recognition using the Huggin
 ```
 
 ### Testing:
+
 1. Generate sample audio files: `python generate_sample_audio.py`
 2. Test the API: `python test_api.py`
 3. Or use the interactive docs at http://localhost:8000/docs
 
 ### First Run:
+
 The model will be downloaded automatically on first use (~1-2GB). This may take a few minutes depending on your internet connection. Subsequent requests will be much faster.
 
 ## Configuration

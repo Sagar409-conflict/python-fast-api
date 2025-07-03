@@ -5,6 +5,7 @@
 ### 🚀 **Complete FastAPI Application with Speech Emotion Recognition**
 
 1. **Comprehensive FastAPI Framework**
+
    - Authentication system with JWT tokens
    - CRUD operations for task management
    - Speech emotion recognition endpoints
@@ -12,6 +13,7 @@
    - Health checks and monitoring
 
 2. **Speech Emotion Recognition Integration**
+
    - Integrated Hugging Face transformer models
    - Support for WAV audio file processing
    - Both authenticated and public endpoints
@@ -19,6 +21,7 @@
    - Emotions: `['angry', 'calm', 'disgust', 'fearful', 'happy', 'neutral', 'sad', 'surprised']`
 
 3. **Human-like Emotional Speech Generation**
+
    - Used Edge TTS to generate realistic emotional speech
    - 30 sample audio files across 6 emotions
    - High-quality human voice with emotional expression styles
@@ -34,6 +37,7 @@
 ## 📊 **Current Performance**
 
 ### Model Testing Results:
+
 - **Processing Time**: ~20-40 seconds per audio file
 - **Model Response**: The model is functional and returning different emotion predictions
 - **Confidence Scores**: All emotions showing similar confidence (~0.131), indicating the model may need:
@@ -44,16 +48,19 @@
 ## 🎯 **API Endpoints Available**
 
 ### Speech Emotion Recognition:
+
 - `POST /analyze-speech-emotion-public` - Public emotion analysis
-- `POST /analyze-speech-emotion` - Authenticated emotion analysis  
+- `POST /analyze-speech-emotion` - Authenticated emotion analysis
 - `GET /speech-emotion/model-info` - Model information
 
 ### Authentication:
+
 - `POST /register` - User registration
 - `POST /login` - User login
 - `GET /users/me` - Current user info
 
 ### Task Management:
+
 - `POST /tasks` - Create task
 - `GET /tasks` - List tasks
 - `GET /tasks/{id}` - Get task
@@ -61,22 +68,26 @@
 - `DELETE /tasks/{id}` - Delete task
 
 ### Health:
+
 - `GET /` - API information
 - `GET /health` - Health check
 
 ## 🔧 **How to Use**
 
 ### 1. Start the Server:
+
 ```bash
 cd d:\Python
 python main.py
 ```
 
 ### 2. Access Documentation:
+
 - **API Docs**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
 ### 3. Test with Generated Audio:
+
 ```bash
 # Generate emotional speech samples
 python generate_emotional_speech.py
@@ -86,6 +97,7 @@ python test_emotional_speech_api.py
 ```
 
 ### 4. Upload Your Own Audio:
+
 ```bash
 curl -X POST "http://localhost:8000/analyze-speech-emotion-public" \
      -H "Content-Type: multipart/form-data" \
@@ -114,6 +126,7 @@ d:\Python/
 ## 🎯 **Recommendations for Improvement**
 
 ### 1. **Model Optimization**
+
 ```python
 # Try different models for better accuracy:
 alternative_models = [
@@ -124,17 +137,20 @@ alternative_models = [
 ```
 
 ### 2. **Audio Preprocessing Enhancement**
+
 - Add audio normalization
 - Implement voice activity detection
 - Add noise reduction
 - Segment long audio files
 
 ### 3. **Real-time Processing**
+
 - Implement WebSocket for real-time audio streaming
 - Add audio recording from microphone
 - Optimize model loading and caching
 
 ### 4. **Enhanced Features**
+
 ```python
 # Add emotion confidence thresholds
 # Implement emotion tracking over time
@@ -145,12 +161,14 @@ alternative_models = [
 ## 🧪 **Testing Your Own Audio**
 
 ### Requirements for Best Results:
+
 1. **Audio Format**: WAV files, 16kHz sample rate
 2. **Content**: Clear human speech with emotional expression
 3. **Duration**: 3-30 seconds optimal
 4. **Quality**: Minimal background noise
 
 ### Example Test:
+
 ```python
 # Test with your own audio file
 python -c "
@@ -162,6 +180,7 @@ test_with_custom_audio('path/to/your/audio.wav')
 ## 🚀 **Ready for Production**
 
 The system is now fully functional and ready for:
+
 - ✅ Development and testing
 - ✅ Integration with other systems
 - ✅ Deployment with Docker
