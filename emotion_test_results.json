@@ -1,0 +1,20 @@
+{
+  "Ele_Happy": [
+    {
+      "predicted_emotion": "calm",
+      "confidence": 0.13279284536838531,
+      "all_emotions": {
+        "angry": 0.12877537310123444,
+        "calm": 0.13279284536838531,
+        "disgust": 0.1262565702199936,
+        "fearful": 0.12595060467720032,
+        "happy": 0.11692846566438675,
+        "neutral": 0.12050433456897736,
+        "sad": 0.12247446179389954,
+        "surprised": 0.12631738185882568
+      },
+      "model_name": "ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition",
+      "processing_time": 20.931941986083984
+    }
+  ]
+}

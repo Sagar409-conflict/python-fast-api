@@ -1,14 +1,15 @@
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import uvicorn
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 import os
 from decouple import config
+from speech_emotion import get_speech_emotion_recognizer
 
 # Configuration
 SECRET_KEY = config("SECRET_KEY", default="your-secret-key-here")
@@ -17,8 +18,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="FastAPI Jumpstart",
-    description="A comprehensive FastAPI starter template",
+    title="FastAPI Jumpstart with Speech Emotion Recognition",
+    description="A comprehensive FastAPI starter template with authentication, CRUD operations, and speech emotion recognition using Hugging Face models",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
@@ -65,6 +66,13 @@ class TaskResponse(BaseModel):
     completed: bool
     created_at: datetime
     updated_at: datetime
+
+class SpeechEmotionResponse(BaseModel):
+    predicted_emotion: str
+    confidence: float
+    all_emotions: Dict[str, float]
+    model_name: str
+    processing_time: Optional[float] = None
 
 # In-memory storage (replace with database in production)
 users_db = []
@@ -232,6 +240,188 @@ async def delete_task(task_id: int, current_user: dict = Depends(get_current_use
     
     deleted_task = tasks_db.pop(task_index)
     return {"message": "Task deleted successfully", "task": TaskResponse(**deleted_task)}
+
+# Speech Emotion Recognition routes
+@app.post("/api/v1/speech-emotion/analyze", response_model=SpeechEmotionResponse)
+async def analyze_speech_emotion_authenticated(
+    audio_file: UploadFile = File(..., description="WAV audio file for emotion analysis"),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    🔐 Analyze emotion from uploaded WAV audio file (Authenticated endpoint)
+    
+    **Required Authentication**: Bearer token in Authorization header
+    
+    **Request**:
+    - Method: POST
+    - Content-Type: multipart/form-data
+    - Body: audio_file (WAV file)
+    - Header: Authorization: Bearer <your_jwt_token>
+    
+    **Response**: Emotion analysis with confidence scores
+    """
+    return await _process_audio_emotion(audio_file, current_user["username"])
+
+async def _process_audio_emotion(audio_file: UploadFile, user_identifier: str = "anonymous"):
+    """Internal function to process audio emotion recognition"""
+    import time
+    start_time = time.time()
+    
+    # Validate file type
+    if not audio_file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "FILE_NAME_MISSING",
+                "message": "Audio file name is required",
+                "supported_formats": ["wav", "wave"]
+            }
+        )
+    
+    if not audio_file.filename.lower().endswith(('.wav', '.wave')):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "UNSUPPORTED_FORMAT",
+                "message": f"File '{audio_file.filename}' is not a supported format",
+                "supported_formats": ["wav", "wave"],
+                "received_format": audio_file.filename.split('.')[-1] if '.' in audio_file.filename else "unknown"
+            }
+        )
+    
+    try:
+        # Read audio file bytes
+        audio_bytes = await audio_file.read()
+        
+        if len(audio_bytes) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "EMPTY_FILE",
+                    "message": "Uploaded audio file is empty",
+                    "file_size": 0
+                }
+            )
+        
+        if len(audio_bytes) > 50 * 1024 * 1024:  # 50MB limit
+            raise HTTPException(
+                status_code=413,
+                detail={
+                    "error": "FILE_TOO_LARGE",
+                    "message": "Audio file is too large",
+                    "max_size_mb": 50,
+                    "received_size_mb": round(len(audio_bytes) / (1024 * 1024), 2)
+                }
+            )
+        
+        # Get emotion recognizer instance
+        recognizer = get_speech_emotion_recognizer()
+        
+        # Analyze emotion
+        result = recognizer.predict_emotion_from_bytes(audio_bytes, audio_file.filename)
+        
+        # Add processing metadata
+        processing_time = time.time() - start_time
+        result.update({
+            "processing_time": round(processing_time, 2),
+            "file_info": {
+                "filename": audio_file.filename,
+                "size_bytes": len(audio_bytes),
+                "size_mb": round(len(audio_bytes) / (1024 * 1024), 2)
+            },
+            "processed_by": user_identifier,
+            "timestamp": datetime.utcnow().isoformat(),
+            "api_version": "1.0"
+        })
+        
+        return SpeechEmotionResponse(**result)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "error": "PROCESSING_ERROR",
+                "message": f"Error processing audio file: {str(e)}",
+                "file_name": audio_file.filename if audio_file.filename else "unknown"
+            }
+        )
+
+@app.post("/api/v1/speech-emotion/analyze-public", response_model=SpeechEmotionResponse)
+async def analyze_speech_emotion_public(
+    audio_file: UploadFile = File(..., description="WAV audio file for emotion analysis")
+):
+    """
+    🌐 Analyze emotion from uploaded WAV audio file (Public endpoint - No authentication required)
+    
+    **Perfect for Postman Testing!**
+    
+    **Request Setup for Postman**:
+    1. Method: POST
+    2. URL: http://localhost:8000/api/v1/speech-emotion/analyze-public
+    3. Body: form-data
+    4. Key: audio_file (type: File)
+    5. Value: Select your .wav file
+    
+    **Response**: Detailed emotion analysis with confidence scores
+    
+    **Supported formats**: WAV files only
+    **Max file size**: 50MB
+    """
+    return await _process_audio_emotion(audio_file, "public_user")
+
+@app.get("/api/v1/speech-emotion/info")
+async def get_speech_emotion_info():
+    """
+    📋 Get comprehensive information about the speech emotion recognition system
+    
+    **Perfect for Postman Testing**:
+    - Method: GET
+    - URL: http://localhost:8000/api/v1/speech-emotion/info
+    """
+    return {
+        "service": "Speech Emotion Recognition API",
+        "version": "1.0",
+        "model": {
+            "name": "ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition",
+            "type": "Wav2Vec2 Audio Classification",
+            "emotions": ["angry", "calm", "disgust", "fearful", "happy", "neutral", "sad", "surprised"],
+            "description": "Advanced speech emotion recognition using Wav2Vec2 transformer model"
+        },
+        "api_endpoints": {
+            "public_analysis": "/api/v1/speech-emotion/analyze-public",
+            "authenticated_analysis": "/api/v1/speech-emotion/analyze",
+            "model_info": "/api/v1/speech-emotion/info",
+            "health_check": "/health"
+        },
+        "supported_formats": ["wav", "wave"],
+        "max_file_size": "50MB",
+        "sample_rate": "16kHz (auto-converted)",
+        "postman_setup": {
+            "method": "POST",
+            "url": "http://localhost:8000/api/v1/speech-emotion/analyze-public",
+            "body_type": "form-data",
+            "field_name": "audio_file",
+            "field_type": "File",
+            "instructions": "Select a WAV audio file from your computer"
+        },
+        "example_response": {
+            "predicted_emotion": "happy",
+            "confidence": 0.876,
+            "all_emotions": {
+                "happy": 0.876,
+                "neutral": 0.098,
+                "calm": 0.026
+            },
+            "model_name": "ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition",
+            "processing_time": 2.34,
+            "file_info": {
+                "filename": "sample.wav",
+                "size_mb": 1.2
+            }
+        }
+    }
 
 if __name__ == "__main__":
     uvicorn.run(
